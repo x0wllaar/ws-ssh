@@ -44,13 +44,13 @@ then add to nginx config:
 	}
 and restart nginx for the changes to take effect
 
+On the client:
+	ssh -o ProxyCommand="ws-ssh connect --url https://yoursite.com/ws-ssh stdio" yoursite.com
+
 It's also recommended to add frequent SSH keepalives to such connections:
 	Host yoursite.com
 		ServerAliveInterval 10
 		ServerAliveCountMax 2
-
-On the client:
-	ssh -o ProxyCommand="ws-ssh connect --url https://yoursite.com/ws-ssh stdio" yoursite.com
 `,
 	PreRun: util.LogConfig,
 }
