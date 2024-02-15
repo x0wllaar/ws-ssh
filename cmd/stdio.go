@@ -16,9 +16,11 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log/slog"
+	"os"
 
 	"github.com/spf13/cobra"
+	"grisha.xyz/ws-ssh/impl/client"
 	"grisha.xyz/ws-ssh/util"
 )
 
@@ -38,7 +40,17 @@ To use with SSH:
 `,
 	PreRun: util.LogConfig,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("stdio called")
+		localLogger := slog.With(slog.String("command", "connect stdio"))
+		urlStr, err := cmd.Flags().GetString("url")
+		if err != nil {
+			localLogger.Error("Error in URL argument", slog.String("error", err.Error()))
+			os.Exit(1)
+		}
+		if urlStr == "" {
+			localLogger.Error("Empty URL argument")
+			os.Exit(1)
+		}
+		client.ConnectCmdImplStdIo(localLogger, urlStr)
 	},
 }
 

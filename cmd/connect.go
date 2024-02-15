@@ -28,8 +28,8 @@ var connectCmd = &cobra.Command{
 Currently, only forwarding stdio to websocket is supported.
 
 To use:
-	ws-ssh connect stdio --url https://yoursite.com/ws-ssh
-will connect to https://yoursite.com/ws-ssh and forward stdio to it`,
+	ws-ssh connect stdio --url wss://yoursite.com/ws-ssh
+will connect to wss://yoursite.com/ws-ssh and forward stdio to it`,
 	PreRun: util.LogConfig,
 }
 
