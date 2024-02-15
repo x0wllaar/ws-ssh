@@ -3,6 +3,7 @@ module grisha.xyz/ws-ssh
 go 1.22.0
 
 require (
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/samber/lo v1.38.1 // indirect
 	github.com/samber/slog-common v0.14.0 // indirect

@@ -33,7 +33,7 @@ behind Cloudflare or other CDN.
 
 To use, on the server:
 run
-	ws-ssh listen --from tcp4:127.0.0.1:8822 --to tcp4:127.0.0.1:22
+	ws-ssh listen --from 127.0.0.1:8822 --to 127.0.0.1:22
 then add to nginx config:
 	location /ws-ssh {
     	proxy_pass  http://127.0.0.1:8822/;
