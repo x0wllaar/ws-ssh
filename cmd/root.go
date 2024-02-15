@@ -19,9 +19,10 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	"grisha.xyz/ws-ssh/util"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "ws-ssh",
 	Short: "A small program that forwards TCP connections over websockets",
@@ -41,6 +42,7 @@ then add to nginx config:
 On the client:
 	ssh -o ProxyCommand="ws-ssh connect --url https://yoursite.com/ws-ssh stdio" yoursite.com
 `,
+	PreRun: util.LogConfig,
 }
 
 func Execute() {
@@ -51,4 +53,5 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().String("loglevel", "warn", "Logging severity level")
 }

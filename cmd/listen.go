@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"grisha.xyz/ws-ssh/util"
 )
 
 // listenCmd represents the listen command
@@ -32,6 +33,7 @@ For example:
 	ws-ssh listen --from tcp4:127.0.0.1:8822 --to tcp4:127.0.0.1:22
 will listen for incoming websocket connections on http://127.0.0.1/8822 and
 forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
+	PreRun: util.LogConfig,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("listen called")
 	},

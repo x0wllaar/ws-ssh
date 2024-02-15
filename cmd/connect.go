@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"grisha.xyz/ws-ssh/util"
 )
 
 // connectCmd represents the connect command
@@ -29,6 +30,7 @@ Currently, only forwarding stdio to websocket is supported.
 To use:
 	ws-ssh connect stdio --url https://yoursite.com/ws-ssh
 will connect to https://yoursite.com/ws-ssh and forward stdio to it`,
+	PreRun: util.LogConfig,
 }
 
 func init() {

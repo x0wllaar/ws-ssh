@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"grisha.xyz/ws-ssh/util"
 )
 
 // stdioCmd represents the stdio command
@@ -35,6 +36,7 @@ To use:
 To use with SSH:
 	ssh -o ProxyCommand="ws-ssh connect --url https://yoursite.com/ws-ssh stdio" yoursite.com
 `,
+	PreRun: util.LogConfig,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("stdio called")
 	},
