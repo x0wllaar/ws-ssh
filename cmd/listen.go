@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -34,28 +35,50 @@ For example:
 	ws-ssh listen --from 127.0.0.1:8822 --to 127.0.0.1:22
 will listen for incoming websocket connections on http://127.0.0.1:8822 and
 forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cmd.SilenceUsage = true
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		localLogger := slog.With(slog.String("command", "listen"))
-		fromStr, err := cmd.Flags().GetString("from")
+
+		fromString, err := cmd.Flags().GetString("from")
 		if err != nil {
 			localLogger.Error("Error in from argument", slog.String("error", err.Error()))
 			return fmt.Errorf("error in from argument: %w", err)
 		}
-		if fromStr == "" {
+		if fromString == "" {
 			localLogger.Error("Empty from argument")
 			return fmt.Errorf("empty from argument")
 		}
-		toStr, err := cmd.Flags().GetString("to")
+		ctx := context.WithValue(cmd.Context(), fromStr{}, fromString)
+		cmd.SetContext(ctx)
+
+		toString, err := cmd.Flags().GetString("to")
 		if err != nil {
 			localLogger.Error("Error in to argument", slog.String("error", err.Error()))
 			return fmt.Errorf("error in to argument: %w", err)
 		}
-		if toStr == "" {
+		if toString == "" {
 			localLogger.Error("Empty to argument")
 			return fmt.Errorf("empty to argument")
 		}
-		err = server.ListenCmdImpl(localLogger, fromStr, toStr)
+		ctx = context.WithValue(cmd.Context(), toStr{}, toString)
+		cmd.SetContext(ctx)
+
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
+		localLogger := slog.With(slog.String("command", "listen"))
+
+		fromString := cmd.Context().Value(fromStr{}).(string)
+		if fromString == "" {
+			panic("empty from string")
+		}
+
+		toString := cmd.Context().Value(toStr{}).(string)
+		if fromString == "" {
+			panic("empty to string")
+		}
+
+		err := server.ListenCmdImpl(localLogger, fromString, toString)
 		if err != nil {
 			localLogger.Error("Error running server", slog.String("error", err.Error()))
 			return err
@@ -68,6 +91,6 @@ forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
 func init() {
 	rootCmd.AddCommand(listenCmd)
 
-	listenCmd.Flags().StringP("from", "f", "127.0.0.1:8822", "Where to listen for incoming connections")
-	listenCmd.Flags().StringP("to", "t", "127.0.0.1:22", "Where to forward the connections")
+	listenCmd.PersistentFlags().StringP("from", "f", "127.0.0.1:8822", "Where to listen for incoming connections")
+	listenCmd.PersistentFlags().StringP("to", "t", "127.0.0.1:22", "Where to forward the connections")
 }
