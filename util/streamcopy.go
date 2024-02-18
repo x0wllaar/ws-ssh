@@ -29,7 +29,7 @@ func StreamCopy(logger *slog.Logger, from io.ReadWriter, to io.ReadWriter) error
 		logger.Debug("Starting to -> from copy")
 		n, err := io.Copy(from, to)
 		if err != nil {
-			logger.Debug("To -> from copy ended", slog.Int64("copied", n), slog.String("error", err.Error()))
+			logger.Debug("To -> from copy ended", slog.Int64("copied", n), SlogError(err))
 		} else {
 			logger.Debug("To -> from copy ended", slog.Int64("copied", n))
 		}
@@ -40,7 +40,7 @@ func StreamCopy(logger *slog.Logger, from io.ReadWriter, to io.ReadWriter) error
 		logger.Debug("Starting from -> to copy")
 		n, err := io.Copy(to, from)
 		if err != nil {
-			logger.Debug("From -> to copy ended", slog.Int64("copied", n), slog.String("error", err.Error()))
+			logger.Debug("From -> to copy ended", slog.Int64("copied", n), SlogError(err))
 		} else {
 			logger.Debug("From -> to copy ended", slog.Int64("copied", n))
 		}

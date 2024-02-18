@@ -31,7 +31,7 @@ func connectCmdImpl(logger *slog.Logger, url string, from io.ReadWriter) error {
 
 	websockRaw, _, err := websocket.Dial(context.Background(), url, nil)
 	if err != nil {
-		localLogger.Error("Error connecting to websocket", slog.String("error", err.Error()))
+		localLogger.Error("Error connecting to websocket", util.SlogError(err))
 		return fmt.Errorf("error connecting to websocket: %w", err)
 	}
 	defer websockRaw.CloseNow()
@@ -41,7 +41,7 @@ func connectCmdImpl(logger *slog.Logger, url string, from io.ReadWriter) error {
 
 	err = util.StreamCopy(localLogger, from, websock)
 	if err != nil {
-		localLogger.Warn("Errors when copying streams", slog.String("error", err.Error()))
+		localLogger.Warn("Errors when copying streams", util.SlogError(err))
 	}
 
 	slog.Info("Done copying streams")

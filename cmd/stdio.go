@@ -21,6 +21,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"grisha.xyz/ws-ssh/impl/client"
+	"grisha.xyz/ws-ssh/util"
 )
 
 // stdioCmd represents the stdio command
@@ -55,7 +56,7 @@ To use with SSH:
 
 		err := client.ConnectCmdImplStdIo(localLogger, urlString)
 		if err != nil {
-			localLogger.Error("Error connecting", slog.String("error", err.Error()))
+			localLogger.Error("Error connecting", util.SlogError(err))
 			return err
 		}
 		return nil

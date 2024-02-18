@@ -21,6 +21,7 @@ import (
 	"log/slog"
 
 	"github.com/spf13/cobra"
+	"grisha.xyz/ws-ssh/util"
 )
 
 // connectCmd represents the connect command
@@ -41,7 +42,7 @@ will connect to wss://yoursite.com/ws-ssh and forward stdio to it`,
 
 		urlString, err := cmd.Flags().GetString("url")
 		if err != nil {
-			localLogger.Error("Error in URL argument", slog.String("error", err.Error()))
+			localLogger.Error("Error in URL argument", util.SlogError(err))
 			return err
 		}
 		if urlString == "" {

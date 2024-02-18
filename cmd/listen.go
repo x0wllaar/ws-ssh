@@ -22,6 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"grisha.xyz/ws-ssh/impl/server"
+	"grisha.xyz/ws-ssh/util"
 )
 
 // listenCmd represents the listen command
@@ -43,7 +44,7 @@ forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
 
 		fromString, err := cmd.Flags().GetString("from")
 		if err != nil {
-			localLogger.Error("Error in from argument", slog.String("error", err.Error()))
+			localLogger.Error("Error in from argument", util.SlogError(err))
 			return fmt.Errorf("error in from argument: %w", err)
 		}
 		if fromString == "" {
@@ -55,7 +56,7 @@ forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
 
 		toString, err := cmd.Flags().GetString("to")
 		if err != nil {
-			localLogger.Error("Error in to argument", slog.String("error", err.Error()))
+			localLogger.Error("Error in to argument", util.SlogError(err))
 			return fmt.Errorf("error in to argument: %w", err)
 		}
 		if toString == "" {
@@ -83,7 +84,7 @@ forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
 
 		err := server.ListenCmdImpl(localLogger, fromString, toString)
 		if err != nil {
-			localLogger.Error("Error running server", slog.String("error", err.Error()))
+			localLogger.Error("Error running server", util.SlogError(err))
 			return err
 		}
 

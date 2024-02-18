@@ -35,7 +35,7 @@ func ListenCmdImpl(logger *slog.Logger, from string, to string) error {
 
 		websockRaw, err := websocket.Accept(w, r, nil)
 		if err != nil {
-			connectionLogger.Error("Error accepting websocket connection", slog.String("error", err.Error()))
+			connectionLogger.Error("Error accepting websocket connection", util.SlogError(err))
 			return
 		}
 		defer websockRaw.CloseNow()
@@ -44,7 +44,7 @@ func ListenCmdImpl(logger *slog.Logger, from string, to string) error {
 
 		tosock, err := net.Dial("tcp", to)
 		if err != nil {
-			connectionLogger.Error("Error connecting to downstream server", slog.String("error", err.Error()))
+			connectionLogger.Error("Error connecting to downstream server", util.SlogError(err))
 			websockRaw.Close(websocket.StatusInternalError, "Error connecting to downstream server")
 			return
 		}
@@ -52,7 +52,7 @@ func ListenCmdImpl(logger *slog.Logger, from string, to string) error {
 
 		err = util.StreamCopy(connectionLogger, websock, tosock)
 		if err != nil {
-			connectionLogger.Warn("Errors when copying streams", slog.String("error", err.Error()))
+			connectionLogger.Warn("Errors when copying streams", util.SlogError(err))
 		}
 
 		slog.Info("Done copying streams")
@@ -61,7 +61,7 @@ func ListenCmdImpl(logger *slog.Logger, from string, to string) error {
 
 	err := http.ListenAndServe(from, handlerFn)
 	if err != nil {
-		localLogger.Error("Error in HTTP server", slog.String("error", err.Error()))
+		localLogger.Error("Error in HTTP server", util.SlogError(err))
 		return err
 	}
 
