@@ -20,13 +20,12 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
-	"os"
 
 	"grisha.xyz/ws-ssh/util"
 	"nhooyr.io/websocket"
 )
 
-func ListenCmdImpl(logger *slog.Logger, from string, to string) {
+func ListenCmdImpl(logger *slog.Logger, from string, to string) error {
 	localLogger := logger.With(slog.String("from", from), slog.String("to", to))
 	localLogger.Info("Starting listener")
 
@@ -63,6 +62,8 @@ func ListenCmdImpl(logger *slog.Logger, from string, to string) {
 	err := http.ListenAndServe(from, handlerFn)
 	if err != nil {
 		localLogger.Error("Error in HTTP server", slog.String("error", err.Error()))
-		os.Exit(1)
+		return err
 	}
+
+	return nil
 }

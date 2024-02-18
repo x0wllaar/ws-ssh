@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"log/slog"
-	"os"
 
 	"github.com/spf13/cobra"
 	"grisha.xyz/ws-ssh/impl/server"
@@ -36,27 +36,34 @@ For example:
 will listen for incoming websocket connections on http://127.0.0.1:8822 and
 forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
 	PreRun: util.LogConfig,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		localLogger := slog.With(slog.String("command", "listen"))
 		fromStr, err := cmd.Flags().GetString("from")
 		if err != nil {
 			localLogger.Error("Error in from argument", slog.String("error", err.Error()))
-			os.Exit(1)
+			return fmt.Errorf("error in from argument: %w", err)
 		}
 		if fromStr == "" {
 			localLogger.Error("Empty from argument")
-			os.Exit(1)
+			return fmt.Errorf("empty from argument")
 		}
 		toStr, err := cmd.Flags().GetString("to")
 		if err != nil {
 			localLogger.Error("Error in to argument", slog.String("error", err.Error()))
-			os.Exit(1)
+			return fmt.Errorf("error in to argument: %w", err)
 		}
 		if toStr == "" {
 			localLogger.Error("Empty to argument")
-			os.Exit(1)
+			return fmt.Errorf("empty to argument")
 		}
-		server.ListenCmdImpl(localLogger, fromStr, toStr)
+		err = server.ListenCmdImpl(localLogger, fromStr, toStr)
+		if err != nil {
+			localLogger.Error("Error running server", slog.String("error", err.Error()))
+			return err
+		}
+
+		return nil
 	},
 }
 
