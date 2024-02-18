@@ -21,15 +21,16 @@ import (
 	"io"
 	"log/slog"
 
+	"grisha.xyz/ws-ssh/impl/wsclient"
 	"grisha.xyz/ws-ssh/util"
 	"nhooyr.io/websocket"
 )
 
-func connectCmdImpl(logger *slog.Logger, url string, from io.ReadWriter) error {
+func connectCmdImpl(logger *slog.Logger, dialer wsclient.WSDialer, url string, from io.ReadWriter) error {
 	localLogger := logger.With(slog.String("to", url))
 	localLogger.Info("Starting cleint")
 
-	websockRaw, _, err := websocket.Dial(context.Background(), url, nil)
+	websockRaw, err := dialer.Dial(context.Background(), url)
 	if err != nil {
 		localLogger.Error("Error connecting to websocket", util.SlogError(err))
 		return fmt.Errorf("error connecting to websocket: %w", err)

@@ -21,6 +21,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"grisha.xyz/ws-ssh/impl/client"
+	"grisha.xyz/ws-ssh/impl/wsclient"
 	"grisha.xyz/ws-ssh/util"
 )
 
@@ -54,7 +55,12 @@ To use with SSH:
 			panic("empty URL string")
 		}
 
-		err := client.ConnectCmdImplStdIo(localLogger, urlString)
+		wsDialer := cmd.Context().Value(wsDialerImpl{}).(wsclient.WSDialer)
+		if wsDialer == nil {
+			panic("nil WS dialer")
+		}
+
+		err := client.ConnectCmdImplStdIo(localLogger, wsDialer, urlString)
 		if err != nil {
 			localLogger.Error("Error connecting", util.SlogError(err))
 			return err

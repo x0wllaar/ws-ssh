@@ -18,9 +18,11 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/spf13/cobra"
+	"grisha.xyz/ws-ssh/impl/wsclient"
 	"grisha.xyz/ws-ssh/util"
 )
 
@@ -49,8 +51,20 @@ will connect to wss://yoursite.com/ws-ssh and forward stdio to it`,
 			localLogger.Error("Empty URL argument")
 			return errors.New("empty URL argument")
 		}
-
 		ctx = context.WithValue(cmd.Context(), urlStr{}, urlString)
+		cmd.SetContext(ctx)
+
+		methodString, err := cmd.Flags().GetString("method")
+		if err != nil {
+			localLogger.Error("Error in method argument", util.SlogError(err))
+			return err
+		}
+		methodDialer, err := wsclient.GetDialerForSpec(localLogger, methodString)
+		if err != nil {
+			localLogger.Error("Error when getting method implementation", util.SlogError(err))
+			return fmt.Errorf("error when getting method implementation: %w", err)
+		}
+		ctx = context.WithValue(cmd.Context(), wsDialerImpl{}, methodDialer)
 		cmd.SetContext(ctx)
 
 		return nil
@@ -61,4 +75,5 @@ func init() {
 	rootCmd.AddCommand(connectCmd)
 
 	connectCmd.PersistentFlags().StringP("url", "u", "", "The URL connect to")
+	connectCmd.PersistentFlags().StringP("method", "m", "normal", "The method to use for websocket connection")
 }

@@ -16,12 +16,20 @@ limitations under the License.
 package client
 
 import (
+	"context"
 	"log/slog"
 	"os"
+
+	"grisha.xyz/ws-ssh/impl/wsclient"
 )
 
-func ConnectCmdImplStdIo(logger *slog.Logger, url string) error {
+func ConnectCmdImplStdIo(logger *slog.Logger, dialer wsclient.WSDialer, url string) error {
 	logger.Info("Using stdio")
+
+	logger.Debug("Initializing dialer")
+	dialer.Init(context.Background())
+	defer dialer.Close()
+
 	stdioRw := newConnectedReadWriter(os.Stdin, os.Stdout)
-	return connectCmdImpl(logger, url, stdioRw)
+	return connectCmdImpl(logger, dialer, url, stdioRw)
 }
