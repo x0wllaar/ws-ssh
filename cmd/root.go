@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -56,7 +57,8 @@ It's also recommended to add frequent SSH keepalives to such connections:
 }
 
 func Execute() {
-	err := rootCmd.Execute()
+	ctx := context.Background()
+	err := rootCmd.ExecuteContext(ctx)
 	if err != nil {
 		os.Exit(1)
 	}

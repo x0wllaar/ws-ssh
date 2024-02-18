@@ -39,16 +39,13 @@ To use with SSH:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
 		localLogger := slog.With(slog.String("command", "connect stdio"))
-		urlStr, err := cmd.Flags().GetString("url")
-		if err != nil {
-			localLogger.Error("Error in URL argument", slog.String("error", err.Error()))
-			return err
+
+		urlString := cmd.Context().Value(urlStr{}).(string)
+		if urlString == "" {
+			panic("empty URL string")
 		}
-		if urlStr == "" {
-			localLogger.Error("Empty URL argument")
-			return err
-		}
-		err = client.ConnectCmdImplStdIo(localLogger, urlStr)
+
+		err := client.ConnectCmdImplStdIo(localLogger, urlString)
 		if err != nil {
 			localLogger.Error("Error connecting", slog.String("error", err.Error()))
 			return err

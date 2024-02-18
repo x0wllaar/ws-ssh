@@ -16,6 +16,10 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
+	"errors"
+	"log/slog"
+
 	"github.com/spf13/cobra"
 )
 
@@ -29,6 +33,24 @@ Currently, only forwarding stdio to websocket is supported.
 To use:
 	ws-ssh connect stdio --url wss://yoursite.com/ws-ssh
 will connect to wss://yoursite.com/ws-ssh and forward stdio to it`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		localLogger := slog.With(slog.String("command", "connect"))
+
+		urlString, err := cmd.Flags().GetString("url")
+		if err != nil {
+			localLogger.Error("Error in URL argument", slog.String("error", err.Error()))
+			return err
+		}
+		if urlString == "" {
+			localLogger.Error("Empty URL argument")
+			return errors.New("empty URL argument")
+		}
+
+		ctx := context.WithValue(cmd.Context(), urlStr{}, urlString)
+		cmd.SetContext(ctx)
+
+		return nil
+	},
 }
 
 func init() {
