@@ -21,7 +21,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"grisha.xyz/ws-ssh/impl/server"
-	"grisha.xyz/ws-ssh/util"
 )
 
 // listenCmd represents the listen command
@@ -35,7 +34,6 @@ For example:
 	ws-ssh listen --from 127.0.0.1:8822 --to 127.0.0.1:22
 will listen for incoming websocket connections on http://127.0.0.1:8822 and
 forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
-	PreRun: util.LogConfig,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
 		localLogger := slog.With(slog.String("command", "listen"))

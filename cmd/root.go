@@ -52,7 +52,7 @@ It's also recommended to add frequent SSH keepalives to such connections:
 		ServerAliveInterval 10
 		ServerAliveCountMax 2
 `,
-	PreRun: util.LogConfig,
+	PersistentPreRun: util.LogConfig,
 }
 
 func Execute() {
