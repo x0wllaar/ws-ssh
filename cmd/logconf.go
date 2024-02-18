@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	sloglogrus "github.com/samber/slog-logrus/v2"
@@ -33,7 +34,12 @@ func logConfig(cmd *cobra.Command, args []string) {
 		logrus.Panicf("Error getting log level: %v", err)
 	}
 	lvlVal := getLevel(lvlStr)
-	logrusLogger := logrus.New()
+	logrusLogger := &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.TextFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.DebugLevel,
+	}
 	localLogger := slog.New(sloglogrus.Option{Level: lvlVal, Logger: logrusLogger}.NewLogrusHandler())
 	ctx := context.WithValue(cmd.Context(), logger{}, localLogger)
 	cmd.SetContext(ctx)
