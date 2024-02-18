@@ -17,6 +17,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -25,14 +26,14 @@ import (
 	"nhooyr.io/websocket"
 )
 
-func connectCmdImpl(logger *slog.Logger, url string, from io.ReadWriter) {
+func connectCmdImpl(logger *slog.Logger, url string, from io.ReadWriter) error {
 	localLogger := logger.With(slog.String("to", url))
 	localLogger.Info("Starting cleint")
 
 	websockRaw, _, err := websocket.Dial(context.Background(), url, nil)
 	if err != nil {
 		localLogger.Error("Error connecting to websocket", slog.String("error", err.Error()))
-		os.Exit(1)
+		return fmt.Errorf("error connecting to websocket: %w", err)
 	}
 	defer websockRaw.CloseNow()
 
@@ -45,10 +46,11 @@ func connectCmdImpl(logger *slog.Logger, url string, from io.ReadWriter) {
 	}
 
 	slog.Info("Done copying streams")
+	return nil
 }
 
-func ConnectCmdImplStdIo(logger *slog.Logger, url string) {
+func ConnectCmdImplStdIo(logger *slog.Logger, url string) error {
 	logger.Info("Using stdio")
 	stdioRw := newConnectedReadWriter(os.Stdin, os.Stdout)
-	connectCmdImpl(logger, url, stdioRw)
+	return connectCmdImpl(logger, url, stdioRw)
 }

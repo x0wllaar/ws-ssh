@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"log/slog"
-	"os"
 
 	"github.com/spf13/cobra"
 	"grisha.xyz/ws-ssh/impl/client"
@@ -39,18 +38,24 @@ To use with SSH:
 	ssh -o ProxyCommand="ws-ssh connect --url https://yoursite.com/ws-ssh stdio" yoursite.com
 `,
 	PreRun: util.LogConfig,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		localLogger := slog.With(slog.String("command", "connect stdio"))
 		urlStr, err := cmd.Flags().GetString("url")
 		if err != nil {
 			localLogger.Error("Error in URL argument", slog.String("error", err.Error()))
-			os.Exit(1)
+			return err
 		}
 		if urlStr == "" {
 			localLogger.Error("Empty URL argument")
-			os.Exit(1)
+			return err
 		}
-		client.ConnectCmdImplStdIo(localLogger, urlStr)
+		err = client.ConnectCmdImplStdIo(localLogger, urlStr)
+		if err != nil {
+			localLogger.Error("Error connecting", slog.String("error", err.Error()))
+			return err
+		}
+		return nil
 	},
 }
 
