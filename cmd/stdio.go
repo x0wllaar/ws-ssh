@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/spf13/cobra"
@@ -36,9 +37,16 @@ To use:
 To use with SSH:
 	ssh -o ProxyCommand="ws-ssh connect --url https://yoursite.com/ws-ssh stdio" yoursite.com
 `,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		localLogger := cmd.Context().Value(logger{}).(*slog.Logger)
+		localLogger = localLogger.With(slog.String("command", "connect stdio"))
+		ctx := context.WithValue(cmd.Context(), logger{}, localLogger)
+		cmd.SetContext(ctx)
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
-		localLogger := slog.With(slog.String("command", "connect stdio"))
+		localLogger := cmd.Context().Value(logger{}).(*slog.Logger)
 
 		urlString := cmd.Context().Value(urlStr{}).(string)
 		if urlString == "" {

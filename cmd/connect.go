@@ -34,7 +34,10 @@ To use:
 	ws-ssh connect stdio --url wss://yoursite.com/ws-ssh
 will connect to wss://yoursite.com/ws-ssh and forward stdio to it`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		localLogger := slog.With(slog.String("command", "connect"))
+		localLogger := cmd.Context().Value(logger{}).(*slog.Logger)
+		localLogger = localLogger.With(slog.String("command", "connect"))
+		ctx := context.WithValue(cmd.Context(), logger{}, localLogger)
+		cmd.SetContext(ctx)
 
 		urlString, err := cmd.Flags().GetString("url")
 		if err != nil {
@@ -46,7 +49,7 @@ will connect to wss://yoursite.com/ws-ssh and forward stdio to it`,
 			return errors.New("empty URL argument")
 		}
 
-		ctx := context.WithValue(cmd.Context(), urlStr{}, urlString)
+		ctx = context.WithValue(cmd.Context(), urlStr{}, urlString)
 		cmd.SetContext(ctx)
 
 		return nil

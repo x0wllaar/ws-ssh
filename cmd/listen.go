@@ -36,7 +36,10 @@ For example:
 will listen for incoming websocket connections on http://127.0.0.1:8822 and
 forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		localLogger := slog.With(slog.String("command", "listen"))
+		localLogger := cmd.Context().Value(logger{}).(*slog.Logger)
+		localLogger = localLogger.With(slog.String("command", "listen"))
+		ctx := context.WithValue(cmd.Context(), logger{}, localLogger)
+		cmd.SetContext(ctx)
 
 		fromString, err := cmd.Flags().GetString("from")
 		if err != nil {
@@ -47,7 +50,7 @@ forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
 			localLogger.Error("Empty from argument")
 			return fmt.Errorf("empty from argument")
 		}
-		ctx := context.WithValue(cmd.Context(), fromStr{}, fromString)
+		ctx = context.WithValue(cmd.Context(), fromStr{}, fromString)
 		cmd.SetContext(ctx)
 
 		toString, err := cmd.Flags().GetString("to")
@@ -66,7 +69,7 @@ forward them to 127.0.0.1:22, enabling ssh connections over websockets`,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
-		localLogger := slog.With(slog.String("command", "listen"))
+		localLogger := cmd.Context().Value(logger{}).(*slog.Logger)
 
 		fromString := cmd.Context().Value(fromStr{}).(string)
 		if fromString == "" {

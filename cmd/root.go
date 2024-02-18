@@ -20,8 +20,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"grisha.xyz/ws-ssh/util"
 )
 
 var rootCmd = &cobra.Command{
@@ -53,7 +51,7 @@ It's also recommended to add frequent SSH keepalives to such connections:
 		ServerAliveInterval 10
 		ServerAliveCountMax 2
 `,
-	PersistentPreRun: util.LogConfig,
+	PersistentPreRun: logConfig,
 }
 
 func Execute() {

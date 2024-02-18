@@ -13,9 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package util
+package cmd
 
 import (
+	"context"
 	"strings"
 
 	sloglogrus "github.com/samber/slog-logrus/v2"
@@ -26,15 +27,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func LogConfig(cmd *cobra.Command, args []string) {
+func logConfig(cmd *cobra.Command, args []string) {
 	lvlStr, err := cmd.Flags().GetString("loglevel")
 	if err != nil {
 		logrus.Panicf("Error getting log level: %v", err)
 	}
 	lvlVal := getLevel(lvlStr)
 	logrusLogger := logrus.New()
-	logger := slog.New(sloglogrus.Option{Level: lvlVal, Logger: logrusLogger}.NewLogrusHandler())
-	slog.SetDefault(logger)
+	localLogger := slog.New(sloglogrus.Option{Level: lvlVal, Logger: logrusLogger}.NewLogrusHandler())
+	ctx := context.WithValue(cmd.Context(), logger{}, localLogger)
+	cmd.SetContext(ctx)
 }
 
 func getLevel(lvl string) slog.Level {
