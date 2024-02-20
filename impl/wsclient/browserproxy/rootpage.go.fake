@@ -1,0 +1,3 @@
+package browserproxy
+
+const ROOTPAGE_HTML = "PLACEHOLDER TEXT"

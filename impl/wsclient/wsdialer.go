@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"grisha.xyz/ws-ssh/impl/wsclient/browserproxy"
 	"nhooyr.io/websocket"
 )
 
@@ -20,6 +21,9 @@ func GetDialerForSpec(logger *slog.Logger, spec string) (WSDialer, error) {
 	logger.Info("Getting Websocket dialer for spec", slog.String("spec", spec))
 	if spec == "normal" {
 		return &normalWSDialer{logger: logger.With(slog.String("dialer", "normalDialer"))}, nil
+	}
+	if spec == "browserproxy" {
+		return browserproxy.NewBrowserProxyWSDialer(logger.With(slog.String("dialer", "browserProxy"))), nil
 	}
 	logger.Error("Could not find Websocket dialer for spec", slog.String("spec", spec))
 	return nil, fmt.Errorf("could not find Websocket dialer for spec %s", spec)

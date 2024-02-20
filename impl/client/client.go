@@ -17,17 +17,23 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 
 	"grisha.xyz/ws-ssh/impl/wsclient"
+	"grisha.xyz/ws-ssh/util"
 )
 
 func ConnectCmdImplStdIo(logger *slog.Logger, dialer wsclient.WSDialer, url string) error {
 	logger.Info("Using stdio")
 
 	logger.Debug("Initializing dialer")
-	dialer.Init(context.Background())
+	err := dialer.Init(context.Background())
+	if err != nil {
+		logger.Error("Failed to initialize dialer", util.SlogError(err))
+		return fmt.Errorf("failed to initialize dialer: %w", err)
+	}
 	defer dialer.Close()
 
 	stdioRw := newConnectedReadWriter(os.Stdin, os.Stdout)
