@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	"grisha.xyz/ws-ssh/cmd"
+	"grisha.xyz/ws-ssh/cli/cmd"
 )
 
 func main() {
