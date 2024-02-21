@@ -22,8 +22,8 @@ import (
 )
 
 func StreamCopy(logger *slog.Logger, from io.ReadWriter, to io.ReadWriter) error {
-	tfChan := make(chan error)
-	ftChan := make(chan error)
+	tfChan := make(chan error, 2)
+	ftChan := make(chan error, 2)
 
 	go func() {
 		logger.Debug("Starting to -> from copy")
@@ -47,12 +47,16 @@ func StreamCopy(logger *slog.Logger, from io.ReadWriter, to io.ReadWriter) error
 		ftChan <- err
 	}()
 
-	errTf := <-tfChan
-	errFt := <-ftChan
-
-	if (errTf == nil) && (errFt == nil) {
-		return nil
+	select {
+	case errTf := <-tfChan:
+		if errTf != nil {
+			return fmt.Errorf("error to to from: %w", errTf)
+		}
+	case errFt := <-ftChan:
+		if errFt != nil {
+			return fmt.Errorf("error from to to: %w", errFt)
+		}
 	}
 
-	return fmt.Errorf("to to from: %w, from to to: %w", errTf, errFt)
+	return nil
 }
