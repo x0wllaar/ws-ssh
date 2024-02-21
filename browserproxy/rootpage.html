@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <title>Browserproxy Forwarder Page</title>
+    </head>
+    <body>
+        <pre>
+            PLEASE OPEN DEV CONSOLE (F12) IF YOU WANT TO SEE LOGS!
+        </pre>
+
+        <script>
+            //wasm_exec.js inserted inline by build script
+            "WASM_EXEC_JS_INSERTED_HERE"
+        </script>
+        
+        <script>
+            //base64 of the wasm blob inserted inline by build script
+            const WASMCODE = "WASM_BASE_64_HERE";
+
+            onWasmStartedResolve = null;
+            async function startWasm(){
+                const wasmStartPromise = new Promise(resolve => onWasmStartedResolve = resolve);
+
+                const GO_WASM = new window.Go();
+                const wasm_bytes = Uint8Array.from(atob(WASMCODE), c => c.charCodeAt(0));
+                const wasm_obj = await WebAssembly.instantiate(wasm_bytes, GO_WASM.importObject);
+                GO_WASM.run(wasm_obj.instance)
+
+                await wasmStartPromise;
+            }
+        </script>
+        
+        <script>
+
+            function url(s) {
+                var l = window.location;
+                return ((l.protocol === "https:") ? "wss://" : "ws://") + l.host + s;
+            }
+
+            (async () => {
+                await startWasm();
+
+                let newURL = url("/control/");
+                console.log("WS Control URL", newURL)
+                let controlWebsock = new WebSocket(newURL);
+
+                controlWebsock.onopen = (event) => {
+                    controlWebsock.send("BPROXY-HELO");
+                }
+
+                controlWebsock.onmessage = async (event) => {
+                    let controlData = String(event.data);
+                    console.log("got control data", controlData);
+                    let cDataSplit = controlData.split("||");
+                    let connId = cDataSplit[0];
+                    let connUrl = cDataSplit[1];
+                    console.log("connection ID", connId, "connection URL", connUrl);
+                    
+                    let prxUrl = url("/connections/" + connId + "/");
+                    goHandleProxyConnection(connUrl, prxUrl);
+                }
+
+
+
+
+            })();
+        </script>
+    </body>
+</html>
