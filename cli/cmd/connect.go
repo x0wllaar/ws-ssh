@@ -23,6 +23,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"grisha.xyz/ws-ssh/impl/wsclient"
+	"grisha.xyz/ws-ssh/impl/wsclient/browserproxy"
 	"grisha.xyz/ws-ssh/util"
 )
 
@@ -67,6 +68,14 @@ will connect to wss://yoursite.com/ws-ssh and forward stdio to it`,
 		ctx = context.WithValue(cmd.Context(), wsDialerImpl{}, methodDialer)
 		cmd.SetContext(ctx)
 
+		bpAddr, err := cmd.Flags().GetString("bpaddr")
+		if err != nil {
+			localLogger.Error("Error in bpaddr argument", util.SlogError(err))
+			return err
+		}
+		ctx = context.WithValue(cmd.Context(), browserproxy.BpAddrCtx{}, bpAddr)
+		cmd.SetContext(ctx)
+
 		return nil
 	},
 }
@@ -76,4 +85,5 @@ func init() {
 
 	connectCmd.PersistentFlags().StringP("url", "u", "", "The URL connect to")
 	connectCmd.PersistentFlags().StringP("method", "m", "normal", "The method to use for websocket connection")
+	connectCmd.PersistentFlags().String("bpaddr", "127.0.0.1:8822", "Address and port for browserproxy to listen on")
 }

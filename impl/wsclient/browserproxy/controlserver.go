@@ -11,6 +11,8 @@ import (
 	"nhooyr.io/websocket"
 )
 
+type BpAddrCtx struct{}
+
 type acceptedWSConn struct {
 	conn *websocket.Conn
 	err  error
@@ -52,8 +54,15 @@ func (d *browserProxyWSDialer) Init(ctx context.Context) error {
 	mux.HandleFunc("/control/", d.acceptControlConnection)
 	mux.HandleFunc("/connections/{id}/", d.acceptDataConnection)
 
+	var serverAddr string
+	if ctx.Value(BpAddrCtx{}) != nil {
+		serverAddr = ctx.Value(BpAddrCtx{}).(string)
+	} else {
+		serverAddr = "127.0.0.1:8822"
+	}
+
 	d.logger.Debug("Starting server")
-	server := &http.Server{Handler: mux, Addr: "127.0.0.1:8822"}
+	server := &http.Server{Handler: mux, Addr: serverAddr}
 	serverErrorChan := make(chan error, 2)
 	go func() {
 		err := server.ListenAndServe()
@@ -63,7 +72,7 @@ func (d *browserProxyWSDialer) Init(ctx context.Context) error {
 		}
 		serverErrorChan <- nil
 	}()
-	d.logger.Info("Please open your browser and go to http://127.0.0.1:8822 to connect")
+	d.logger.Info("Please open your browser and go to the listen address to connect", slog.String("listenaddress", fmt.Sprintf("http://%s", serverAddr)))
 
 	select {
 	case ctrlConnError := <-d.controlAccept:
