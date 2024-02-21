@@ -63,6 +63,7 @@ func (d *browserProxyWSDialer) Init(ctx context.Context) error {
 		}
 		serverErrorChan <- nil
 	}()
+	d.logger.Info("Please open your browser and go to http://127.0.0.1:8822 to connect")
 
 	select {
 	case ctrlConnError := <-d.controlAccept:
