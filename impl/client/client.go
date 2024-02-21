@@ -25,11 +25,11 @@ import (
 	"grisha.xyz/ws-ssh/util"
 )
 
-func ConnectCmdImplStdIo(logger *slog.Logger, dialer wsclient.WSDialer, url string) error {
+func ConnectCmdImplStdIo(ctx context.Context, logger *slog.Logger, dialer wsclient.WSDialer, url string) error {
 	logger.Info("Using stdio")
 
 	logger.Debug("Initializing dialer")
-	err := dialer.Init(context.Background())
+	err := dialer.Init(ctx)
 	if err != nil {
 		logger.Error("Failed to initialize dialer", util.SlogError(err))
 		return fmt.Errorf("failed to initialize dialer: %w", err)
@@ -37,5 +37,5 @@ func ConnectCmdImplStdIo(logger *slog.Logger, dialer wsclient.WSDialer, url stri
 	defer dialer.Close()
 
 	stdioRw := newConnectedReadWriter(os.Stdin, os.Stdout)
-	return connectCmdImpl(logger, dialer, url, stdioRw)
+	return connectCmdImpl(ctx, logger, dialer, url, stdioRw)
 }

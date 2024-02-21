@@ -60,7 +60,7 @@ To use with SSH:
 			panic("nil WS dialer")
 		}
 
-		err := client.ConnectCmdImplStdIo(localLogger, wsDialer, urlString)
+		err := client.ConnectCmdImplStdIo(cmd.Context(), localLogger, wsDialer, urlString)
 		if err != nil {
 			localLogger.Error("Error connecting", util.SlogError(err))
 			return err

@@ -26,18 +26,18 @@ import (
 	"nhooyr.io/websocket"
 )
 
-func connectCmdImpl(logger *slog.Logger, dialer wsclient.WSDialer, url string, from io.ReadWriter) error {
+func connectCmdImpl(ctx context.Context, logger *slog.Logger, dialer wsclient.WSDialer, url string, from io.ReadWriter) error {
 	localLogger := logger.With(slog.String("to", url))
 	localLogger.Info("Starting cleint")
 
-	websockRaw, err := dialer.Dial(context.Background(), url)
+	websockRaw, err := dialer.Dial(ctx, url)
 	if err != nil {
 		localLogger.Error("Error connecting to websocket", util.SlogError(err))
 		return fmt.Errorf("error connecting to websocket: %w", err)
 	}
 	defer websockRaw.CloseNow()
 
-	websock := websocket.NetConn(context.Background(), websockRaw, websocket.MessageBinary)
+	websock := websocket.NetConn(ctx, websockRaw, websocket.MessageBinary)
 	defer websock.Close()
 
 	err = util.StreamCopy(localLogger, from, websock)
